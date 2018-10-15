@@ -1,9 +1,10 @@
 package main
 
 import (
-	Router "GoDemo/router"
-
 	Dao "GoDemo/dao"
+	Post "GoDemo/post"
+	Router "GoDemo/router"
+	Util "GoDemo/util"
 
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
@@ -14,14 +15,15 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	dbInit()
+	Dao.Init()
+	authorized := r.Group("/post")
+	authorized.Use(Util.TokenAuth())
+	{
+		authorized.GET("/test", Post.Test)
+	}
+
 	Router.Home(r)
-	Router.Post(r)
 	// r.Run(":8081")
 	endless.ListenAndServe(":8081", r)
 	// r.RunTLS(":8081")
-}
-func dbInit() {
-	dao := new(Dao.MembersDao)
-	dao.Init()
 }

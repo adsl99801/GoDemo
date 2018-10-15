@@ -1,8 +1,11 @@
 package router
 
 import (
-	Dao "GoDemo/dao"
+	Base "GoDemo/dao"
+	Members "GoDemo/dao/members"
 	Model "GoDemo/model"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,26 +14,33 @@ import (
 //Home o
 func Home(r *gin.Engine) {
 
-	r.POST("/home/login", func(c *gin.Context) {
+	// r.GET("/user/:name", func(c *gin.Context) {
+	// 	name := c.Param("name")
+	// 	c.String(http.StatusOK, "Hello %s", name)
+	// })
+	r.GET("/json", func(c *gin.Context) {
 		base := Model.BaseResponse{Sus: true, Status: 0, Msg: ""}
 		response := Model.LoginResponse{BaseResponse: base, Token: ""}
 		c.JSON(http.StatusOK, response)
 	})
-	r.GET("/user/:name", func(c *gin.Context) {
-		name := c.Param("name")
-		c.String(http.StatusOK, "Hello %s", name)
+	//curl localhost:8081/from --request POST --data '{"Sus":true,"Status":0,"Msg":"msg1","Token":""}'
+	r.POST("/from", func(c *gin.Context) {
+		var response Model.BaseResponse
+		c.BindJSON(&response)
+		log.Println(response)
+		c.String(http.StatusOK, fmt.Sprintf("done:"+response.Msg))
 	})
-	r.GET("/json", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"user": "u1", "value": "v1"})
-	})
-	r.GET("/data", func(c *gin.Context) {
-		dao := new(Dao.MembersDao)
-		members := dao.All()
+	r.GET("/members", func(c *gin.Context) {
+		var dao = new(Members.MembersDao)
+		db := Base.Open()
+		defer db.Close()
+		members := dao.All(db)
 		if len(members) <= 0 {
-			dao.Insert()
+			// dao.Insert()
 			c.String(http.StatusOK, "members<=0")
 			return
 		}
-		c.String(http.StatusOK, "data:"+members[0].Name)
+		c.JSON(http.StatusOK, members)
 	})
+
 }

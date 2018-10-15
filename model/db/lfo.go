@@ -4,8 +4,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-//Order o
-type Order struct {
+//Orders o
+type Orders struct {
 	gorm.Model
 	Title     string
 	Contents  string
@@ -18,9 +18,10 @@ type Folders struct {
 	MembersID uint64
 }
 
-//Model o
-type Model struct {
-	ID uint64 `gorm:"primary_key"`
+//LoginHistorys o
+type LoginHistorys struct {
+	gorm.Model
+	MembersID string
 }
 
 //Members o
